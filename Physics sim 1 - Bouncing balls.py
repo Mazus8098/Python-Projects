@@ -13,8 +13,8 @@ pygame.init()
 
 """CONSTANTS"""
 # Window Settings
-WIN_WID = (1920 * (2/3))
-WIN_HEI = (1080 * (2/3))
+WIN_WID = (1920*2/3)
+WIN_HEI = (1080*2/3)
 BOUNDARY_SIZE = 50
 WIN_TITLE = 'Physics Sim 1'
 
@@ -44,8 +44,9 @@ window = pygame.display.set_mode((WIN_WID, WIN_HEI))
 window.fill(BLACK)
 pygame.display.set_caption(WIN_TITLE)
 
-# Class to hold the ball object
+""" Class to hold the ball object """
 class Ball(pygame.sprite.Sprite):
+    """ Initialization """
     def __init__(self, x_pos, y_pos, radius):
         super().__init__()  
         # Local variables for the position and radius
@@ -59,17 +60,51 @@ class Ball(pygame.sprite.Sprite):
         self.wall_r = WIN_WID -BOUNDARY_SIZE
         self.wall_l = BOUNDARY_SIZE
 
+    """ Setup """
     def setup(self):
         # Ball Vectors
-        self.ball_vx = 10
-        self.ball_vy = 0
+        self.ball_vx = random.randint(-25, 25)
+        self.ball_vy = random.randint(-25, 0)
 
         # Ball Attr
         self.pos = [self.x_pos, self.y_pos]
         self.ball = None
 
-    # Update Function
-    def move(self):
+    """ Wall Collision """
+    def wall_collide(self, pos_x, pos_y, vec_x, vec_y):
+            #Side Walls
+            ## Right
+            if pos_x > self.wall_r:
+                pos_x = self.wall_r
+                vec_x *= -1
+            ## Left
+            if pos_x < self.wall_l:
+                pos_x = self.wall_l
+                vec_x *= -1
+
+            # Height Walls
+            ## Bottom
+            if pos_y > self.floor:
+                pos_y = self.floor
+                vec_y *= -1
+            ## Top
+            elif pos_y <= self.ceiling:
+                pos_y = self.ceiling
+                vec_y *= -1
+
+            # Stop if on floor
+            if pos_y >= self.floor and -2 < vec_y < 2:
+                pos_y = self.floor
+                vec_y = 0
+                vec_x *= .75
+                if -.5 < vec_x < .5:
+                    vec_x = 0
+
+            return(pos_x, pos_y, vec_x, vec_y)
+
+    
+    """ Update Function """
+    def update(self):
         # Only runs if the ball exits first
         if self.ball:
 
@@ -86,48 +121,17 @@ class Ball(pygame.sprite.Sprite):
             self.ball_vx *= DRAG
             self.ball_vy *= DRAG
 
-            # Wall Collision(
-            ## (Side Walls
-            ### Right
-            if self.pos_x > self.wall_r:
-                self.pos[0] = self.wall_r
-                self.ball_vx *= -1
-                
+            self.pos[0], self.pos[1], self.ball_vx, self.ball_vy = (
+                self.wall_collide(self.pos[0], self.pos[1], self.ball_vx, self.ball_vy))     
 
-            ### Left)
-            if self.pos_x < self.wall_l:
-                self.pos[0] = self.wall_r
-                self.ball_vy *= -1
-
-            ## Height Walls(
-            ### Bottom
-            if self.pos_y > self.floor:
-                self.pos[1] = self.floor
-                self.ball_vy *= .75
-                self.ball_vy *= -1
-
-            ### Top)
-            elif self.pos_y <= self.ceiling:
-                self.pos[1] = self.ceiling
-                self.ball_vy *= -1
-            # )
-
-            # Stop if on floor
-            if self.pos_y >= self.floor and -2 < self.ball_vy < 2:
-                self.pos[1] = self.floor
-                self.pos_x *= .75
-                self.ball_vy = 0
-                if -.5 < self.ball_vx < .5:
-                    self.ball_vx = 0
-                    
-    # Draw Function
+    """ Draw Function """
     def draw(self, surface):
         self.ball = pygame.draw.circle(window, WHITE, self.pos, self.radius)
 
 # Local list for the ball objects
 ball_list = []
 
-# Position Reset
+""" Position Reset """
 def Reset(ball_list):
     # Clear the list of balls
     ball_list.clear()
@@ -143,13 +147,13 @@ def Reset(ball_list):
         ball.setup()
     return(ball_list)
 
-# Ball Creation
+# Print control instructions
+print('Press "R" to reset. \nPress "ESC" to close \nClick to spawn a ball at the cursor')
+
+""" Ball Creation """
 Reset(ball_list)
 for ball in ball_list:
     ball.setup()
-
-# Print control instructions
-print('Press "R" to reset. \nPress "ESC" to close')
 
 # Run loop
 while True:
@@ -177,9 +181,11 @@ while True:
 # Window Refresh
     window.fill(BLACK)
     for ball in ball_list:
-        ball.move()
+        ball.update()
         ball.draw(window)
-
+    if all(ball.ball_vx == 0 and ball.ball_vy == 0 for ball in ball_list):
+        Reset(ball_list)
+        print('Resetting \n')
 # Tickrate
     pygame.display.update()
     FRAMES_PER_SEC.tick(FPS)
