@@ -1,7 +1,9 @@
 # Author    :Maze Elva
 # Date      :2.20.2026
 # Title     :Physics sim 1 - Bouncing balls
-# Purpose   :Create a bouncing ball that is affected by gravity
+# Purpose   :Create bouncing balls repeatedly that 
+#           start with a random velocity, and 
+#           become affected by Gravity and Drag
 
 # Import Packages
 import pygame, math, random, sys
@@ -13,8 +15,8 @@ pygame.init()
 
 """CONSTANTS"""
 # Window Settings
-WIN_WID = (1920*2/3)
-WIN_HEI = (1080*2/3)
+WIN_WID = (1920*3/4)
+WIN_HEI = (1080*3/4)
 BOUNDARY_SIZE = 50
 WIN_TITLE = 'Physics Sim 1'
 
@@ -32,10 +34,10 @@ WHITE = pygame.Color(255, 255, 255)
 # Ball Constants
 RADIUS = 10
 BALL_COUNT = 10
-DRAG = .98
 BALL_LIM = 25
 
-# Gravity
+# Forces
+DRAG = .98
 GRAVITY = .98
 """"""
 
