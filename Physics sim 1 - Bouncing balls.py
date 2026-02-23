@@ -10,6 +10,8 @@ import pygame, math, random, sys
 import pygame.key
 from pygame.locals import *
 
+# Change that means nothing
+
 # Initialize Pygame
 pygame.init()
 
