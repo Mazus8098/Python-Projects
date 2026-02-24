@@ -173,11 +173,13 @@ while True:
                 ball_list = Reset(ball_list)
 
         # Ball spawning
-        if event.type == pygame.MOUSEBUTTONDOWN and len(ball_list) < BALL_LIM:
+        if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 posx, posy = pygame.mouse.get_pos()
                 ball = Ball(posx, posy, RADIUS)
                 ball.setup()
+                if BALL_LIM == len(ball_list):
+                    ball_list.pop(0)
                 ball_list.append(ball)
 
 # Window Refresh
@@ -185,6 +187,7 @@ while True:
     for ball in ball_list:
         ball.update()
         ball.draw(window)
+
     if all(ball.ball_vx == 0 and ball.ball_vy == 0 for ball in ball_list):
         Reset(ball_list)
         print('Resetting \n')
