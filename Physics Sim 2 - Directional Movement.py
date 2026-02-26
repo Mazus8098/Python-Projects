@@ -12,8 +12,8 @@ pygame.init()
 
 """ CONSTANTS """
 # Window Settings
-WIN_WID = 1920*3/4
-WIN_HEI = 1080*3/4
+WIN_WID = 500*3/4
+WIN_HEI = 400*3/4
 BOUNDARY_SIZE = 50
 WIN_TITLE = 'Directional Movement'
 
@@ -29,15 +29,19 @@ BLUE = pygame.Color(0, 0, 255)
 WHITE = pygame.Color(255, 255, 255)
 
 # Ball Constants
-RADIUS = 25
-BALL_COUNT = 1
-BALL_LIM = 1
+RADIUS = 10
+BALL_COUNT = 20
+BALL_LIM = 100
+SPD_MULT = 2
 """"""
 
 # Window Creation
 window = pygame.display.set_mode((WIN_WID, WIN_HEI))
 window.fill(BLACK)
 pygame.display.set_caption(WIN_TITLE)
+
+# Testing tools
+testing = True
 
 """ Class to create the object """
 class Ball(pygame.sprite.Sprite):
@@ -60,6 +64,9 @@ class Ball(pygame.sprite.Sprite):
         # Ball Vectors
         self.ball_vx = 0
         self.ball_vy = 0
+
+        self.dest_x = None
+        self.dest_y = None
 
         # Ball Attr
         self.pos = [self.pos_x, self.pos_y]
@@ -90,7 +97,41 @@ class Ball(pygame.sprite.Sprite):
 
     """ Destination Selection """
     def choose_dest(self):
-        pass
+        # Integer values for x and y positions
+        x = math.floor(self.pos_x)
+        y = math.floor(self.pos_y)
+
+        # Makes sure the selected destination is within the borders
+        check = False
+        while not check:
+            # Sets destination
+            self.dest_x = random.randint(x - 100, x + 100)
+            self.dest_y = random.randint(y - 100, y + 100)
+            # Checks for validity
+            if (self.wall_r - self.radius > self.dest_x > self.wall_l + self.radius and
+                self.floor - self.radius > self.dest_y > self.cieling + self.radius) and (
+                    self.dest_x != self.pos_x and self.dest_y != self.pos_y):
+                check = True
+
+    """ Destination Movement """
+    def move_to_dest(self):
+        # If theres no destination, make one
+        if not self.dest_x or not self.dest_y:
+            self.choose_dest()
+        # Get the distance in the X and Y coordinates
+        dist_x = self.pos_x - self.dest_x
+        dist_y = self.pos_y - self.dest_y
+
+        # Get the direct distance
+        self.dist = math.hypot(dist_x, dist_y)
+
+        # Set the vectors
+        self.ball_vx = -(dist_x / self.dist) * SPD_MULT
+        self.ball_vy = -(dist_y / self.dist) * SPD_MULT
+
+        # If close enough to the destination, choose a new one
+        if -1 < self.dist < 1:
+            self.choose_dest()
 
     """ Update """
     def update(self):
@@ -100,6 +141,8 @@ class Ball(pygame.sprite.Sprite):
 
         # Checks for wall collision
         self.wall_collide()
+        # Moves to Destination
+        self.move_to_dest()
 
         # Updates the position with the vectors
         self.pos_x += self.ball_vx
@@ -112,6 +155,9 @@ class Ball(pygame.sprite.Sprite):
     def draw(self, surface):
         # Draw the ball
         self.ball = pygame.draw.circle(window, WHITE, self.pos, self.radius)
+        # Draw the balls destination
+        if self.dest_x and self.dest_y and testing:
+            self.dest_ball = pygame.draw.circle(window, RED, (self.dest_x, self.dest_y), 5)
 
 # List of balls
 ball_list = []
@@ -155,6 +201,31 @@ while True:
     # Binds R to reset the program
     if key[K_r]:
         reset(ball_list)
+
+    # Binds T to toggle testing
+    if key[K_t]:
+        testing = not(testing)
+
+    # Mouse Events
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        # Checks for left mouse button
+        if event.button == 1:
+            pos_x, pos_y = pygame.mouse.get_pos()
+            ball = Ball(pos_x, pos_y, RADIUS)
+            ball.setup()
+            # Removes the first ball created if the next one goes over the limit
+            if BALL_LIM == len(ball_list):
+                ball_list.pop(0)
+            # Adds ball to the list
+            ball_list.append(ball)
+
+        # Checks for right mouse button
+        if event.button == 3:
+            dest_x, dest_y = pygame.mouse.get_pos()
+            # Sets every balls destination to the new override
+            for ball in ball_list:
+                ball.dest_x = dest_x
+                ball.dest_y = dest_y
 
     # Clears the screen
     window.fill(BLACK)
