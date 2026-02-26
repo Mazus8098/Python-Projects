@@ -30,7 +30,7 @@ WHITE = pygame.Color(255, 255, 255)
 
 # Ball Constants
 RADIUS = 10
-BALL_COUNT = 20
+BALL_COUNT = 5
 BALL_LIM = 100
 SPD_MULT = 2
 """"""
