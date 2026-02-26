@@ -41,7 +41,7 @@ window.fill(BLACK)
 pygame.display.set_caption(WIN_TITLE)
 
 # Testing tools
-testing = True
+testing = False
 
 """ Class to create the object """
 class Ball(pygame.sprite.Sprite):
