@@ -32,7 +32,7 @@ WHITE = pygame.Color(255, 255, 255)
 RADIUS = 10
 BALL_COUNT = 5
 BALL_LIM = 100
-SPD_MULT = 2
+SPD_MULT = 1.5
 """"""
 
 # Window Creation
