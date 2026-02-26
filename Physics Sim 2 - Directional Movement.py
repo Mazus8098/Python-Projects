@@ -12,8 +12,8 @@ pygame.init()
 
 """ CONSTANTS """
 # Window Settings
-WIN_WID = 500*3/4
-WIN_HEI = 400*3/4
+WIN_WID = 1920*3/4
+WIN_HEI = 1080*3/4
 BOUNDARY_SIZE = 50
 WIN_TITLE = 'Directional Movement'
 
