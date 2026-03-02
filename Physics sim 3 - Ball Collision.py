@@ -31,7 +31,7 @@ BLUE = pygame.Color(0, 0, 255)
 WHITE = pygame.Color(255, 255, 255)
 
 # Ball Constants
-RADIUS = 10
+RADIUS = 25
 BALL_COUNT = 10
 BALL_LIM = 25
 
@@ -55,17 +55,21 @@ class Ball(pygame.sprite.Sprite):
         self.pos_y = pos_y
         self.rad = radius
 
-    """ Setup """
-    def setup():
-        # Vectors
-        self.vx = 0
-        self.vy = 0 
-
         # Boundaries
         self.floor = WIN_HEI - BOUNDARY_SIZE
         self.cieling = BOUNDARY_SIZE
         self.wall_r = WIN_WID - BOUNDARY_SIZE
         self.wall_l = BOUNDARY_SIZE
+
+    """ Setup """
+    def setup(self):
+        # Vectors
+        self.vx = 0
+        self.vy = 0 
+
+        # Package position for the draw function
+        self.pos = [self.pos_x, self.pos_y]
+
 
     """ Wall Collide """
     def wall_collide(self):
@@ -118,19 +122,13 @@ for ball in ball_list:
 
 # Run loop
 while True:
-    key = pygame.key.get_pressed()
+    key = pygame.key.get_just_pressed()
     for event in pygame.event.get():
 
         # Exit condition
-        if key[K_ESCAPE] or event.type == QUIT:
+        if event.type == QUIT:
             pygame.quit()
             sys.exit()
-
-        # Reset condition
-        if key[K_r]:
-            for ball in ball_list:
-                ball_list.clear()
-                ball_list = Reset(ball_list)
 
         # Ball spawning
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -142,15 +140,23 @@ while True:
                     ball_list.pop(0)
                 ball_list.append(ball)
 
+    # Manual Exit
+    if key[K_ESCAPE]:
+        pygame.quit()
+        sys.exit()
+
+    # Reset condition
+    if key[K_r]:
+        for ball in ball_list:
+            ball_list.clear()
+            ball_list = Reset(ball_list)
+
 # Window Refresh
     window.fill(BLACK)
     for ball in ball_list:
         ball.update()
         ball.draw(window)
 
-    if all(ball.ball_vx == 0 and ball.ball_vy == 0 for ball in ball_list):
-        Reset(ball_list)
-        print('Resetting \n')
 # Tickrate
     pygame.display.update()
     FRAMES_PER_SEC.tick(FPS)
