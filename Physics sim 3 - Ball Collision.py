@@ -14,8 +14,8 @@ pygame.init()
 
 """CONSTANTS"""
 # Window Settings
-WIN_WID = (1920*3/4)
-WIN_HEI = (1080*3/4)
+WIN_WID = (1920*2/4)
+WIN_HEI = (1080*2/4)
 BOUNDARY_SIZE = 50
 WIN_TITLE = 'Physics Sim 3 - Collision'
 
@@ -32,8 +32,8 @@ WHITE = pygame.Color(255, 255, 255)
 
 # Ball Constants
 RADIUS = 25
-BALL_COUNT = 5
-BALL_LIM = 5
+BALL_COUNT = 2
+BALL_LIM = 20
 
 # Forces
 DRAG = .98
@@ -110,10 +110,20 @@ class Ball(pygame.sprite.Sprite):
 
 
                     # Update vectors to reflect on collision
-                    """ NOT IMPLEMENTED YET """
+                    x_percent = dist_x / dist
+                    y_percent = dist_y / dist
+
+                    self.vx = -x_percent * 2
+                    self.vy = -y_percent * 2
+                    """
+                    Speed needs to be reassigned but not changed.
+                    get the normal vector from the tangent of the collision.
+                    Dist is the normal vector line
+                    IMPERFECT FIX
+                    """
 
                 else:
-                    print('no overlap')
+                    pass
                        
                     
     """ Wall Collide """
@@ -145,12 +155,16 @@ class Ball(pygame.sprite.Sprite):
         self.wall_collide()
         self.ball_collide()
 
+        self.vy += GRAVITY
+        self.vy *= DRAG
+        self.vx *= DRAG
+
+        if -2 < self.vy < 2 and self.pos_y >= self.floor - self.rad:
+            self.vy = 0
+
         # Apply change to position
         self.pos_x += self.vx
         self.pos_y += self.vy
-
-        # Get total speed
-        self.speed = self.vx + self.vy
 
         # Package position for the draw function
         self.pos = self.pos_x, self.pos_y
